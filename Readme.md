@@ -1,5 +1,3 @@
-# <<<<<<< HEAD
-
 **_User Task Queuing with Rate Limiting_**
 
 # Overview
@@ -139,5 +137,3 @@ It allows for quick retrieval and update of request counters, thus providing an 
 Incoming requests that pass through the rate limiter are added to a task queue.
 The task queue ensures requests are processed in an orderly manner without overwhelming the server, even if there are bursts of incoming traffic.
 A queue processing system picks up tasks from the queue for processing asynchronously
-
-> > > > > > > dd687764ca4118f838750abd66f7e7b13df5f88a

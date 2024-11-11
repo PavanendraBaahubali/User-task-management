@@ -1,20 +1,39 @@
 const getFormatedDate = require("../utils/getFormatedDate");
+const taskLogs = require("../utils/taskLogs");
 const taskQueue = require("../utils/taskQueue");
+
+const taskHandler = async (user) => {
+  return new Promise((resolve) => {
+    setTimeout(async () => {
+      console.log(`Task processed for user: ${user}`);
+      const log = {};
+      log[user] = `${user} task completed at ${getFormatedDate()}`;
+
+      taskLogs.push(log);
+
+      console.log(`${user} task completed at ${getFormatedDate()}`);
+
+      resolve();
+    }, 1000);
+  });
+};
 
 const taskController = async (req, res) => {
   console.log("called controller");
   const { userId } = req.body;
   try {
-    const job = await taskQueue.add({ user: userId });
-    await job.finished();
+    await taskHandler(userId);
+
+    console.log("controller called and sucsess");
+
     const formated = getFormatedDate();
-    res.status(200).json({
+    return res.status(200).json({
       message: `${userId} task completed at ${formated}`,
     });
   } catch (err) {
-    res.status(500).json({ message: "Internal server error" });
     console.error(err);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
-module.exports = taskController;
+module.exports = { taskController, taskHandler };

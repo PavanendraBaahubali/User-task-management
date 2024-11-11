@@ -1,6 +1,7 @@
 const express = require("express");
 const taskRouter = require("./routes/taskRouter");
 const redisClient = require("./redisClient");
+const { rateLimitMiddleWare } = require("./middlewares/rateLimitMiddleWare");
 
 require("dotenv").config();
 
@@ -11,6 +12,9 @@ app.use(express.json());
 const startServer = async () => {
   try {
     await redisClient.connect();
+
+    app.use((req, res, next) => rateLimitMiddleWare(req, res, next));
+
     app.use("/api/v1", taskRouter());
     app.listen(process.env.PORT || 3010, () =>
       console.log(`server running on port ${process.env.PORT || 3010} `)
