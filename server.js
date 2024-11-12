@@ -13,7 +13,7 @@ const startServer = async () => {
   try {
     await redisClient.connect();
 
-    app.use((req, res, next) => rateLimitMiddleWare(req, res, next));
+    app.use(rateLimitMiddleWare);
 
     app.use("/api/v1", taskRouter());
     app.listen(process.env.PORT || 3010, () =>

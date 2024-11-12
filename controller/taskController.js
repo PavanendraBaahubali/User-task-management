@@ -1,6 +1,5 @@
 const getFormatedDate = require("../utils/getFormatedDate");
 const taskLogs = require("../utils/taskLogs");
-const taskQueue = require("../utils/taskQueue");
 
 const taskHandler = async (user) => {
   return new Promise((resolve) => {
@@ -10,8 +9,6 @@ const taskHandler = async (user) => {
       log[user] = `${user} task completed at ${getFormatedDate()}`;
 
       taskLogs.push(log);
-
-      console.log(`${user} task completed at ${getFormatedDate()}`);
 
       resolve();
     }, 1000);

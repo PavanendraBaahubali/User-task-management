@@ -1,5 +1,4 @@
 const express = require("express");
-const { rateLimitMiddleWare } = require("../middlewares/rateLimitMiddleWare");
 const { taskController } = require("../controller/taskController");
 
 const taskRouter = () => {
