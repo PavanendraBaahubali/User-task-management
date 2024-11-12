@@ -1,6 +1,6 @@
 **_User Task Queuing with Rate Limiting_**
 
-# Overview
+# 1. Overview
 
 ### Purpose
 
@@ -19,7 +19,7 @@ If the rate limit is exceeded, those requests are queued into the `taskQueue`. T
 - Task-handling techniques like debouncing or deduplication
 - The application uses two replica sets of Node instances to efficiently handle high traffic and ensure high availability.
 
-# Setup and Installation Guide
+# 2. Setup and Installation Guide
 
 ## Prerequisites
 
@@ -110,7 +110,7 @@ const startServer = async () => {
 };
 ```
 
-# Architecture Design
+# 3. Architecture Design
 
 Here's a detailed explanation of the architecture design for a project implementing user task queuing with API rate limiting and high traffic handling using two replica sets of Node applications:
 
@@ -154,7 +154,7 @@ A queue processing system picks up tasks from the queue for processing asynchron
 
 ### Control Flow
 
-<img src="./assets/architecture-design.png" alt="architecture-design" width="600"/>
+<img src="./assets/architecture-design.png" alt="architecture-design" width="700" heigth="500"/>
 
 **Incoming User Request to API Endpoint**:
 
@@ -196,7 +196,40 @@ flowchart TD
     B -->|Failed| F[Queued Request]
     F --> E
     E --> G[Task Completed]
-
-
-
 ```
+
+# 4. API Usage Guide for Task Queuing System
+
+- **1. Base URL**
+  Local: http://localhost:PORT
+  Production: Update with your production URL when deployed.]
+- **2. EndPoints**
+
+  - **2.1 Submit Single Task Request**
+
+    - Endpoint: `POST /api/v1/task`
+    - Description: Accepts a task request for a specific user, if users exceeds the rate limiter then users request is queued. Otherwise request is processed  
+      immediately.
+    - Request Method: POST
+
+    Request Structure
+    Content-Type: application/json
+    Body
+    `"userId" : String`
+    <img src="./assets/single-show.png" alt="single-show" width="600" heigth="500"/>
+
+    Expected Responses 1. Success Response
+    Status: 200 OK
+    <img src="./assets/single-show-success.png" alt="single-show-success" width="700" heigth="500"/>
+
+  - **2.2 Multiple Task Requests**
+
+    - If a user makes multiple requests at the same time, user rate limit will exceeded due to the api rate limit constraints. Then user's request is queued
+      into the taskQueue and processed.
+      Below is the demo of hitting api endpoint at multiple times with delay of 0ms.
+    - \*\*Create A post request in the postman collection section. And run collection with delay of 0ms. And make sure turn on persist responses for a session. So, that you can see the responses. And also set no.of iterations. Iterations means how many time you want to hit a api endpoint
+
+     <img src="./assets/mutiple-collection-demo.png" alt="mutiple-collection-demo" width="700" heigth="500"/>
+
+     <img src="./assets/multi-test-show.png" alt="multi-test-show" width="700" heigth="500"/>
+
