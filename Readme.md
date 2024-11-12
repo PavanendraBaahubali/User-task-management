@@ -1,4 +1,4 @@
-**_User Task Queuing with Rate Limiting_**
+# _User Task Queuing with Rate Limiting_
 
 # 1. Overview
 
@@ -120,7 +120,7 @@ The architecture of this project is built to handle high traffic efficiently, en
 
 ### High Level Architecture Design:
 
-<img src="./assets/architecture-high-level-design.png" alt="architecture-high-level-design" width="600"/>
+<img src="./assets/highLevel.png" alt="architecture-high-level-design" width="600"/>
 
 ### Components of the Architecture
 
@@ -154,8 +154,6 @@ A queue processing system picks up tasks from the queue for processing asynchron
 
 ### Control Flow
 
-<img src="./assets/architecture-design.png" alt="architecture-design" width="700" heigth="500"/>
-
 **Incoming User Request to API Endpoint**:
 
 - As you can see from the picture, we've different layers. Each layer represents each middleware. Here we've API rate limiter and API Router. These two are middlewares.
@@ -184,6 +182,32 @@ A queue processing system picks up tasks from the queue for processing asynchron
   To perform the actual user task (e.g., processing a data operation).
   Example: If the task is a time-consuming operation, it uses asynchronous processing (e.g., a setTimeout mock).
   Upon task completion, a response is sent, indicating the task's completion.
+
+## API Limit Exceeded case study
+
+  <img src="./assets/architecture-design.png" alt="architecture-design" width="700" heigth="500"/>
+
+- The above diagram illustrates how the control flow operates when multiple users' requests exceed their rate limits. It shows how each request is added to the taskQueue and processed in the order it was received, ensuring that all tasks are handled sequentially and no requests are skipped. This ensures fairness and efficient handling of tasks for different users when their requests exceed the limits.
+
+When a user's API request exceeds the rate limit, the request is added to the taskQueue managed by Bull. The taskQueue uses a process function that continuously monitors and processes tasks as they are added. This approach ensures that all incoming tasks in the queue are handled in a first-in, first-out (FIFO) manner.
+
+- **Rate Limiting and Queue Addition**:
+
+If a user exceeds their API limit, their request is immediately added to the taskQueue.
+The taskQueue is structured so that as soon as a task is added, the process function activates to handle it.
+Handling Multiple Users:
+
+When multiple users make requests that exceed their limits, each request is added to the taskQueue in the order it was received.
+This ensures that tasks are processed sequentially, and no request is skipped or ignored. For example, if User A, User B, and User C all exceed their rate limits and make requests, their tasks will be added to the queue and processed one at a time in the order they were received.
+Task Processing:
+
+Once a task is being processed, the system works to complete it. When the task is finished, a promise resolves and the response is sent back to the client.
+After processing and responding to the client, the task is removed from the taskQueue, allowing the next task (if any) to proceed.
+For example, if User A's request is completed and a response is sent back to them, the taskQueue will then dequeue and move on to process User B's request.
+Ensured Order:
+
+Bull ensures that tasks are processed in the exact order they were added to the queue. This means that no user’s request will be processed out of order or delayed beyond necessary queue handling time.
+This approach guarantees efficient and orderly processing of requests that exceed rate limits, ensuring that each user's request is handled with fairness and without skipping tasks, while also providing real-time processing as soon as new tasks enter the queue.
 
 ### Flow Diagram
 
@@ -216,20 +240,26 @@ flowchart TD
     Content-Type: application/json
     Body
     `"userId" : String`
-    <img src="./assets/single-show.png" alt="single-show" width="600" heigth="500"/>
+    <img src="./assets/single-show.PNG" alt="single-show" width="600" heigth="500"/>
 
     Expected Responses 1. Success Response
     Status: 200 OK
-    <img src="./assets/single-show-success.png" alt="single-show-success" width="700" heigth="500"/>
+
+    <img src="./assets/single-show-success.PNG" alt="single-show-success" width="700" heigth="500"/>
 
   - **2.2 Multiple Task Requests**
 
     - If a user makes multiple requests at the same time, user rate limit will exceeded due to the api rate limit constraints. Then user's request is queued
       into the taskQueue and processed.
+
       Below is the demo of hitting api endpoint at multiple times with delay of 0ms.
+
     - \*\*Create A post request in the postman collection section. And run collection with delay of 0ms. And make sure turn on persist responses for a session. So, that you can see the responses. And also set no.of iterations. Iterations means how many time you want to hit a api endpoint
 
-     <img src="./assets/mutiple-collection-demo.png" alt="mutiple-collection-demo" width="700" heigth="500"/>
+       <img src="./assets/mutiple-collection-demo.PNG" alt="mutiple-collection-demo" width="700" heigth="500"/>
 
-     <img src="./assets/multi-test-show.png" alt="multi-test-show" width="700" heigth="500"/>
+       <img src="./assets/multi-test-show.PNG" alt="multi-test-show" width="700" heigth="500"/>
 
+      - **Response**
+
+        <img src="./assets/multi-success.PNG" alt="multi-test-show" width="700" heigth="500"/>
